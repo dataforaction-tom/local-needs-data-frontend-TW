@@ -1,0 +1,31 @@
+:root {
+  --property-color-bg: #e8fdf5;
+  --value-color-bg: #cdecff;
+  --property-color: #19a974;
+  --value-color: #357edd;
+}
+
+label.required:after {
+  content: ' *';
+  color: red;
+}
+
+.property-text {
+  padding: 0.1em 0.2em;
+  background-color: var(--property-color-bg);
+  border-bottom: 2px solid var(--property-color);
+}
+
+.property-bg {
+  background-color: var(--property-color-bg);
+}
+
+.value-text {
+  padding: 0.1em 0.2em;
+  background-color: var(--value-color-bg);
+  border-bottom: 2px solid var(--value-color);
+}
+
+.value-bg {
+  background-color: var(--value-color-bg);
+}
