@@ -11,3 +11,8 @@ export interface Column {
   type?: ColumnType
   description?: string
 }
+
+export interface ChecklistItem {
+  name: string
+  valid: boolean
+}

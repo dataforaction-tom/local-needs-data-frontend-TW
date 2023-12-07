@@ -2,11 +2,13 @@
 import { defineComponent } from 'vue'
 
 import DatasetPropertyListItem from './DatasetPropertyListItem.vue'
+import SelectWithOther from './SelectWithOther.vue'
 
 export default defineComponent({
   name: 'DatasetProperties',
   components: {
-    DatasetPropertyListItem
+    DatasetPropertyListItem,
+    SelectWithOther
   },
   props: [
     'dateColumn',
@@ -32,23 +34,36 @@ export default defineComponent({
     provide a value for the whole dataset.
   </p>
   <ul>
-    <DatasetPropertyListItem
-      name="Date"
-      :column="dateColumn"
-      :defaultValue="defaultDate"
-      @input="$emit('update:defaultDate', $event.target.value)"
-    />
-    <DatasetPropertyListItem
-      name="Period"
-      :column="periodColumn"
-      :defaultValue="defaultPeriod"
-      @input="$emit('update:defaultPeriod', $event.target.value)"
-    />
-    <DatasetPropertyListItem
-      name="Place"
-      :column="placeColumn"
-      :defaultValue="defaultPlace"
-      @input="$emit('update:defaultPlace', $event.target.value)"
-    />
+    <DatasetPropertyListItem name="Date" :column="dateColumn">
+      <input
+        type="date"
+        class=""
+        autocomplete="off"
+        :defaultValue="defaultDate"
+        @input="$emit('update:defaultDate', ($event.target as HTMLInputElement)?.value)"
+      />
+    </DatasetPropertyListItem>
+    <DatasetPropertyListItem name="Period" :column="periodColumn">
+      <SelectWithOther
+        :modelValue="defaultPeriod"
+        @update:modelValue="(value) => $emit('update:defaultPeriod', value)"
+        pattern="^P(\d+Y)?(\d+M)?(\d+W)?(\d+D)?(T(\d+H)?(\d+M)?(\d+S)?)?$"
+      >
+        <option value="P1D">On this day</option>
+        <option value="P1M">Monthly</option>
+        <option value="P3M">Three months</option>
+        <option value="P6M">Six months</option>
+        <option value="P1Y">One year</option>
+      </SelectWithOther>
+    </DatasetPropertyListItem>
+    <DatasetPropertyListItem name="Place" :column="placeColumn">
+      <input
+        type="text"
+        class=""
+        autocomplete="off"
+        :defaultValue="defaultPlace"
+        @input="$emit('update:defaultPlace', ($event.target as HTMLInputElement)?.value)"
+      />
+    </DatasetPropertyListItem>
   </ul>
 </template>

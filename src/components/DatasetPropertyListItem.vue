@@ -3,8 +3,7 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'DatasetPropertyListItem',
-  props: ['name', 'column', 'defaultValue'],
-  emits: ['update:defaultValue']
+  props: ['name', 'column']
 })
 </script>
 
@@ -17,13 +16,7 @@ export default defineComponent({
     </template>
     <template v-else>
       Use default value
-      <input
-        type="text"
-        class=""
-        :value="defaultValue"
-        @input="$emit('update:defaultValue', ($event.target as HTMLInputElement).value)"
-        autocomplete="off"
-      />
+      <slot></slot>
     </template>
   </li>
 </template>

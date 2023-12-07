@@ -29,3 +29,40 @@ label.required:after {
 .value-bg {
   background-color: var(--value-color-bg);
 }
+
+
+.base-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 2em;
+}
+
+@media screen and (min-width: 60em) {
+  .base-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 2em;
+  }
+
+  .column-span-2 {
+    grid-column: span 2;
+  }
+}
+
+.b-hover {
+  transition: all 0.2s ease-in-out;
+  border-width: 2px;
+  border-style: dashed;
+}
+
+.b-hover:not(:hover) {
+  border-color: transparent;
+}
+
+input.validate:valid {
+  background-color: palegreen;
+}
+
+input.validate:invalid {
+  background-color: lightpink;
+}

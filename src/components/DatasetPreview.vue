@@ -9,10 +9,11 @@ export default defineComponent({
   props: ['columns', 'sampleData'],
   emits: ['update:columns'],
   methods: {
-    isProperty(column: Column) {
-      return column.type != ColumnType.Value
+    isProperty(column: Column): boolean {
+      if(!column.type) return false
+      return [ColumnType.Date, ColumnType.Period, ColumnType.Place].includes(column.type)
     },
-    isValue(column: Column) {
+    isValue(column: Column): boolean {
       return column.type == ColumnType.Value
     }
   }
@@ -21,7 +22,7 @@ export default defineComponent({
 
 <template>
   <h2>Data Preview</h2>
-  <div class="w-100 overflow-x-auto">
+  <div class="w-100 overflow-x-auto" style="max-width: 90vw;">
     <table class="table collapse">
       <thead>
         <tr>
@@ -82,10 +83,11 @@ export default defineComponent({
           <td
             v-for="(column, index) in columns"
             :key="index"
-            class="pa2 ba b--gray tl v-top"
-            :class="{ 'property-bg': isProperty(column), 'value-bg': isValue(column) }"
+            class="pa2 ba b--gray v-top"
+            :class="{ 'property-bg': isProperty(column), 'value-bg tr': isValue(column), 'tl': !isValue(column) }"
           >
-            {{ row[column.name] }}
+            <span v-if="row[column.name] == ''" class="gray">-- empty --</span>
+            <span v-else>{{ row[column.name] }}</span>
           </td>
         </tr>
       </tbody>
