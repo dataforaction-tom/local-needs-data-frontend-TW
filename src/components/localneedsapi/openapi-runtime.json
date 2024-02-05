@@ -1,0 +1,340 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "",
+    "version": ""
+  },
+  "paths": {
+    "/api/v1/dataset/": {
+      "get": {
+        "operationId": "localneeds_api_dataset_dataset_filter_list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "publisher",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "url",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false
+          }
+        ],
+        "responses": {}
+      },
+      "post": {
+        "operationId": "localneeds_api_dataset_dataset_create",
+        "parameters": [],
+        "responses": {},
+        "requestBody": {
+          "content": {
+            "application/json": {}
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/dataset/{dataset_slug}": {
+      "get": {
+        "operationId": "localneeds_api_dataset_dataset_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset_slug",
+            "required": true
+          }
+        ],
+        "responses": {}
+      },
+      "post": {
+        "operationId": "localneeds_api_dataset_dataset_post_csv",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset_slug",
+            "required": true
+          }
+        ],
+        "responses": {},
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {}
+          },
+          "required": true
+        }
+      }
+    },
+    "/api/v1/dataset/{dataset_slug}.csv-metadata.json": {
+      "get": {
+        "operationId": "localneeds_api_dataset_dataset_get_metadata",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset_slug",
+            "required": true
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/dataset/{dataset_slug}.csv": {
+      "get": {
+        "operationId": "localneeds_api_dataset_dataset_csv",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset_slug",
+            "required": true
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/dataset/{dataset_slug}/observations": {
+      "get": {
+        "operationId": "localneeds_api_dataset_dataset_filter_observations",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset_slug",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "name_search",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationDate_gte",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationDate_lte",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationPeriod",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationAbout",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/publisher/": {
+      "get": {
+        "operationId": "localneeds_api_publisher_publisher_filter_list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name_search",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/publisher/{publisher_slug}": {
+      "get": {
+        "operationId": "localneeds_api_publisher_publisher_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "publisher_slug",
+            "required": true
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/observation/": {
+      "get": {
+        "operationId": "localneeds_api_observation_observation_filter_list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "dataset",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "name_search",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationDate_gte",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationDate_lte",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationPeriod",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationAbout",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/observation/list.csv": {
+      "get": {
+        "operationId": "localneeds_api_observation_observation_filter_list_csv",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "dataset",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "name_search",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationDate_gte",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationDate_lte",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationPeriod",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "observationAbout",
+            "required": false
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/observation/{observation_id}": {
+      "get": {
+        "operationId": "localneeds_api_observation_observation_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "observation_id",
+            "required": true
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/area/": {
+      "get": {
+        "operationId": "localneeds_api_area_area_filter_list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "type",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/api/v1/area/{schema_type}/{area_code}": {
+      "get": {
+        "operationId": "localneeds_api_area_area_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "schema_type",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "area_code",
+            "required": true
+          }
+        ],
+        "responses": {}
+      }
+    }
+  },
+  "components": {},
+  "servers": []
+}

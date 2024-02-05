@@ -25,17 +25,10 @@
 </template>
 
 <script lang="ts">
+import type { Components } from '../types/localneedsapi'
+import api from './client'
 import VueMultiselect from 'vue-multiselect'
 import { defineComponent } from 'vue'
-
-const AREA_API_URL = 'https://local-needs.kanedata.co.uk/api/v1/area/'
-
-// define place object with name, code and type
-export interface Place {
-  name: string
-  code: string
-  type: string
-}
 
 export default defineComponent({
   name: 'PlaceAutocomplete',
@@ -47,10 +40,10 @@ export default defineComponent({
   data() {
     return {
       // value is a place object or null
-      value: null as Place | null,
+      value: null as Components.Schemas.Area | null,
 
       // places is an array of place objects
-      places: [] as Place[],
+      places: [] as Components.Schemas.Area[],
 
       // isLoading is a boolean
       isLoading: false
@@ -64,21 +57,17 @@ export default defineComponent({
   methods: {
     asyncFind(query: string) {
       this.isLoading = true
-      var url = new URL(AREA_API_URL)
-      var params = { name: query }
-      url.search = new URLSearchParams(params).toString()
-
-      fetch(url)
-        .then((response) => response.json())
-        .then((data) => {
-          this.places = data.items
+      api
+        .then((client) => client.localneeds_api_area_area_filter_list({ name: query }))
+        .then((response) => {
+          this.places = response.data.items
           this.isLoading = false
         })
     },
     clearAll() {
       this.places = []
     },
-    nameWithType(place: Place) {
+    nameWithType(place: Components.Schemas.Area) {
       return `${place.name} — [${place.type}]`
     }
   }
@@ -86,3 +75,4 @@ export default defineComponent({
 </script>
 
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>
+./client

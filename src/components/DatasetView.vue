@@ -9,61 +9,25 @@ import DatasetChecklist from './DatasetChecklist.vue'
 import type { Column, ChecklistItem } from '../types/types'
 import { ColumnType } from '../types/types'
 import DropZone from './DropZone.vue'
-import type { Place } from './PlaceAutocomplete.vue'
-
-interface SchemaPlace {
-  '@type': string
-  name: string
-  identifier?: string
-  additionalType?: string
-}
+import type { Components } from '../types/localneedsapi'
+import api from './client'
+import type { AxiosResponse } from 'axios'
 
 interface BaseComponentData {
-  file: File | null
-  csv: ParseResult<Record<string, string>> | null
-  name: string | null | undefined
+  file?: File
+  csv?: ParseResult<Record<string, string>>
+  name?: string
   description: string
   api_key?: string
   upload_error?: string
   upload_success: string[]
   creator: string
-  sample_data: Record<string, string>[] | null
+  sample_data?: Record<string, string>[]
   columns: Column[]
-  defaultDate: string | null
-  defaultPeriod: string | null
-  defaultPlace: Place | null
+  defaultDate?: string
+  defaultPeriod?: string
+  defaultPlace?: Components.Schemas.Area
   papaparseConfig: ParseConfig
-}
-
-interface SchemaColumn {
-  titles?: string
-  datatype: string
-  propertyUrl?: string
-  valueUrl?: string
-  default?: SchemaPlace | string | null
-  virtual?: boolean
-}
-
-interface SchemaDataset {
-  '@context': string
-  '@type': string
-  url: string
-  'schema:name': string
-  'schema:description': string
-  'schema:creator': string
-  tableSchema: {
-    columns: SchemaColumn[]
-  }
-}
-
-interface Observation {
-  '@context': string
-  '@type': string
-  name: string
-  value: number
-  observationAbout: SchemaPlace | null
-  observationDate: string | null
-  observationPeriod: string | null
 }
 
 interface DatasetResponse {
@@ -89,15 +53,17 @@ const formatNumber = (value: number) => {
   return value.toLocaleString('en-GB', { maximumFractionDigits: 2 })
 }
 
-const DATASET_UPLOAD_URL = 'https://local-needs.kanedata.co.uk/api/v1/dataset/'
-
-const processResponse = (data: DatasetResponse) => {
-  console.log(data)
+const processResponse = (response: AxiosResponse<Components.Schemas.DatasetResult, any>) => {
+  console.log(response)
+  if (!response) {
+    throw new Error('No response')
+  }
+  const data = response.data
   if (!data.dataset) {
     if (data.errors) {
       throw new Error(data.errors.join(', '))
-    } else if (data.detail) {
-      throw new Error(data.detail)
+      // } else if (data.detail) {
+      //   throw new Error(data.detail)
     } else {
       throw new Error('Unknown error')
     }
@@ -117,19 +83,19 @@ export default defineComponent({
   props: [],
   data() {
     return {
-      file: null as File | null,
-      csv: null as ParseResult<Record<string, string>> | null,
-      sample_data: null,
-      name: null,
+      file: undefined,
+      csv: undefined,
+      sample_data: undefined,
+      name: undefined,
       description: '',
       api_key: '',
       upload_error: '',
       upload_success: [],
       creator: '',
       columns: [],
-      defaultDate: null,
+      defaultDate: undefined,
       defaultPeriod: 'P1D',
-      defaultPlace: null as Place | null,
+      defaultPlace: undefined,
       papaparseConfig: { header: true, skipEmptyLines: true } as ParseConfig
     } as BaseComponentData
   },
@@ -146,8 +112,8 @@ export default defineComponent({
     valueColumns(): Column[] {
       return this.columns.filter((column: Column) => column.type == ColumnType.Value)
     },
-    defaultPlaceSchema(): SchemaPlace | null {
-      if (this.defaultPlace && this.defaultPlace.code) {
+    defaultPlaceSchema(): Components.Schemas.PlaceStandard | null {
+      if (this.defaultPlace && this.defaultPlace.code && this.defaultPlace.name) {
         return {
           '@type': 'Place',
           name: this.defaultPlace.name,
@@ -157,8 +123,8 @@ export default defineComponent({
       }
       return null
     },
-    schemaOutput(): SchemaDataset {
-      var columns: SchemaColumn[] = []
+    schemaOutput(): Components.Schemas.DatasetStandard {
+      var columns: Components.Schemas.ColumnStandard[] = []
 
       this.columns.forEach((column: Column) => {
         if (column.type == ColumnType.Value) {
@@ -228,24 +194,27 @@ export default defineComponent({
         tableSchema: {
           columns: columns
         }
-      } as SchemaDataset
+      } as Components.Schemas.DatasetStandard
     },
-    observationOutput(): Observation[] {
-      var observations: Observation[] = []
+    observationOutput(): Components.Schemas.ObservationStandard[] {
+      var observations: Components.Schemas.ObservationStandard[] = []
 
       if (!this.csv) return observations
 
       this.csv.data.forEach((row: Record<string, string>) => {
         this.valueColumns.forEach((column: Column) => {
           var place = this.placeColumn
-            ? ({ '@type': 'Place', name: row[this.placeColumn.name] } as SchemaPlace)
+            ? ({
+                '@type': 'Place',
+                name: row[this.placeColumn.name]
+              } as Components.Schemas.PlaceStandard)
             : this.defaultPlaceSchema
           var date = this.dateColumn ? row[this.dateColumn.name] : this.defaultDate
           var period = this.periodColumn ? row[this.periodColumn.name] : this.defaultPeriod
 
           if (row[column.name] == '') return
 
-          var observation: Observation = {
+          var observation: Components.Schemas.ObservationStandard = {
             '@context': 'https://schema.org/',
             '@type': 'Observation',
             name: column.name,
@@ -340,32 +309,36 @@ export default defineComponent({
         this.upload_error = 'Please enter an API key'
         return
       }
-      fetch(DATASET_UPLOAD_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-Key': this.api_key
-        },
-        body: JSON.stringify(this.schemaOutput)
-      })
-        .then((response) => response.json() as Promise<DatasetResponse>)
+      api
+        .then((client) =>
+          client.localneeds_api_dataset_dataset_create(null, this.schemaOutput, {
+            headers: {
+              'X-API-Key': this.api_key
+            }
+          })
+        )
         .then(processResponse)
         .then((data) => {
           this.upload_error = ''
           this.upload_success = [...this.upload_success, 'Dataset successfully created on Server']
           // upload CSV file
-          var url = new URL(DATASET_UPLOAD_URL + data.slug)
           var formData = new FormData()
           formData.append('file', this.file as Blob)
-          return fetch(url, {
-            method: 'POST',
-            headers: {
-              'X-API-Key': this.api_key
-            } as HeadersInit,
-            body: formData
-          })
+          return api.then((client) =>
+            client.localneeds_api_dataset_dataset_post_csv(
+              {
+                dataset_slug: data.slug
+              },
+              formData, // @ts-ignore
+              {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                  'X-API-Key': this.api_key
+                }
+              }
+            )
+          )
         })
-        .then((response) => response.json())
         .then(processResponse)
         .then((data) => {
           this.upload_error = ''
