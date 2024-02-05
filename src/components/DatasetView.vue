@@ -9,18 +9,29 @@ import DatasetChecklist from './DatasetChecklist.vue'
 import type { Column, ChecklistItem } from '../types/types'
 import { ColumnType } from '../types/types'
 import DropZone from './DropZone.vue'
+import type { Place } from './PlaceAutocomplete.vue'
+
+interface SchemaPlace {
+  '@type': string
+  name: string
+  identifier?: string
+  additionalType?: string
+}
 
 interface BaseComponentData {
   file: File | null
   csv: ParseResult<Record<string, string>> | null
   name: string | null | undefined
   description: string
+  api_key?: string
+  upload_error?: string
+  upload_success: string[]
   creator: string
   sample_data: Record<string, string>[] | null
   columns: Column[]
-  defaultDate: any
-  defaultPeriod: any
-  defaultPlace: any
+  defaultDate: string | null
+  defaultPeriod: string | null
+  defaultPlace: Place | null
   papaparseConfig: ParseConfig
 }
 
@@ -29,7 +40,7 @@ interface SchemaColumn {
   datatype: string
   propertyUrl?: string
   valueUrl?: string
-  default?: any
+  default?: SchemaPlace | string | null
   virtual?: boolean
 }
 
@@ -50,16 +61,48 @@ interface Observation {
   '@type': string
   name: string
   value: number
-  observationAbout: {
-    '@type': string
+  observationAbout: SchemaPlace | null
+  observationDate: string | null
+  observationPeriod: string | null
+}
+
+interface DatasetResponse {
+  success?: boolean
+  dataset?: {
+    publisher?: {
+      slug: string
+      name: string
+      description?: string
+      identifier?: string
+    }
+    slug: string
     name: string
+    description?: string
+    file?: string
+    url?: string
   }
-  observationDate: string
-  observationPeriod: string
+  errors?: string[]
+  detail?: string
 }
 
 const formatNumber = (value: number) => {
   return value.toLocaleString('en-GB', { maximumFractionDigits: 2 })
+}
+
+const DATASET_UPLOAD_URL = 'https://local-needs.kanedata.co.uk/api/v1/dataset/'
+
+const processResponse = (data: DatasetResponse) => {
+  console.log(data)
+  if (!data.dataset) {
+    if (data.errors) {
+      throw new Error(data.errors.join(', '))
+    } else if (data.detail) {
+      throw new Error(data.detail)
+    } else {
+      throw new Error('Unknown error')
+    }
+  }
+  return data.dataset
 }
 
 export default defineComponent({
@@ -79,11 +122,14 @@ export default defineComponent({
       sample_data: null,
       name: null,
       description: '',
+      api_key: '',
+      upload_error: '',
+      upload_success: [],
       creator: '',
       columns: [],
       defaultDate: null,
       defaultPeriod: 'P1D',
-      defaultPlace: null,
+      defaultPlace: null as Place | null,
       papaparseConfig: { header: true, skipEmptyLines: true } as ParseConfig
     } as BaseComponentData
   },
@@ -99,6 +145,17 @@ export default defineComponent({
     },
     valueColumns(): Column[] {
       return this.columns.filter((column: Column) => column.type == ColumnType.Value)
+    },
+    defaultPlaceSchema(): SchemaPlace | null {
+      if (this.defaultPlace && this.defaultPlace.code) {
+        return {
+          '@type': 'Place',
+          name: this.defaultPlace.name,
+          identifier: this.defaultPlace.code,
+          additionalType: this.defaultPlace.type
+        }
+      }
+      return null
     },
     schemaOutput(): SchemaDataset {
       var columns: SchemaColumn[] = []
@@ -127,7 +184,7 @@ export default defineComponent({
           columns.push({
             titles: column.name,
             datatype: 'string',
-            propertyUrl: 'schema:observationPeriod'
+            propertyUrl: 'schema:observationAbout'
           })
         } else {
           columns.push({
@@ -158,10 +215,7 @@ export default defineComponent({
           virtual: true,
           datatype: 'duration',
           propertyUrl: 'schema:observationAbout',
-          default: {
-            '@type': 'Place',
-            name: this.defaultPlace
-          }
+          default: this.defaultPlaceSchema
         })
       }
 
@@ -183,7 +237,9 @@ export default defineComponent({
 
       this.csv.data.forEach((row: Record<string, string>) => {
         this.valueColumns.forEach((column: Column) => {
-          var place = this.placeColumn ? row[this.placeColumn.name] : this.defaultPlace
+          var place = this.placeColumn
+            ? ({ '@type': 'Place', name: row[this.placeColumn.name] } as SchemaPlace)
+            : this.defaultPlaceSchema
           var date = this.dateColumn ? row[this.dateColumn.name] : this.defaultDate
           var period = this.periodColumn ? row[this.periodColumn.name] : this.defaultPeriod
 
@@ -194,10 +250,7 @@ export default defineComponent({
             '@type': 'Observation',
             name: column.name,
             value: parseFloat(row[column.name]),
-            observationAbout: {
-              '@type': 'Place',
-              name: place
-            },
+            observationAbout: place,
             observationDate: date,
             observationPeriod: period
           }
@@ -211,7 +264,7 @@ export default defineComponent({
       return [
         {
           name: 'File loaded',
-          valid: this.csv
+          valid: !!this.csv
         },
         {
           name: 'No errors in CSV file',
@@ -219,11 +272,11 @@ export default defineComponent({
         },
         {
           name: 'Dataset name and description',
-          valid: this.name && this.description
+          valid: !!this.name && !!this.description
         },
         {
           name: 'Dataset creator identified',
-          valid: this.creator
+          valid: !!this.creator
         },
         {
           name: 'One or more values columns',
@@ -231,15 +284,15 @@ export default defineComponent({
         },
         {
           name: 'Date property column or value',
-          valid: this.dateColumn || this.defaultDate
+          valid: !!this.dateColumn || !!this.defaultDate
         },
         {
           name: 'Period property column or value',
-          valid: this.periodColumn || this.defaultPeriod
+          valid: !!this.periodColumn || !!this.defaultPeriod
         },
         {
           name: 'Place property column or value',
-          valid: this.placeColumn || this.defaultPlace
+          valid: !!this.placeColumn || !!this.defaultPlace
         }
       ]
     },
@@ -279,7 +332,51 @@ export default defineComponent({
         Papa.parse(csvString, config)
       })
     },
-    formatNumber
+    formatNumber,
+    uploadToServer() {
+      this.upload_error = ''
+      this.upload_success = []
+      if (!this.api_key) {
+        this.upload_error = 'Please enter an API key'
+        return
+      }
+      fetch(DATASET_UPLOAD_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': this.api_key
+        },
+        body: JSON.stringify(this.schemaOutput)
+      })
+        .then((response) => response.json() as Promise<DatasetResponse>)
+        .then(processResponse)
+        .then((data) => {
+          this.upload_error = ''
+          this.upload_success = [...this.upload_success, 'Dataset successfully created on Server']
+          // upload CSV file
+          var url = new URL(DATASET_UPLOAD_URL + data.slug)
+          var formData = new FormData()
+          formData.append('file', this.file as Blob)
+          return fetch(url, {
+            method: 'POST',
+            headers: {
+              'X-API-Key': this.api_key
+            } as HeadersInit,
+            body: formData
+          })
+        })
+        .then((response) => response.json())
+        .then(processResponse)
+        .then((data) => {
+          this.upload_error = ''
+          this.upload_success = [...this.upload_success, 'Dataset CSV uploaded successfully']
+          return data
+        })
+        .catch((error) => {
+          this.upload_error = error.message
+          this.upload_success = []
+        })
+    }
   }
 })
 </script>
@@ -356,7 +453,7 @@ export default defineComponent({
     <div v-if="datasetValid">
       <h3>Download results</h3>
       <a
-        class="link dim br2 ph4 pv3 f4 bg-blue white"
+        class="link dim br2 ph4 pv3 f4 bg-blue white mr2"
         :href="
           'data:text/json;charset=utf-8,' +
           encodeURIComponent(JSON.stringify(schemaOutput, null, 2))
@@ -364,6 +461,35 @@ export default defineComponent({
         :download="file.name + '-metadata.json'"
         >Download CSV metadata</a
       >
+      <h3>Upload to server</h3>
+      <label for="publisher-api-key">Publisher API Key</label>
+      <input
+        type="text"
+        class="w-100 br2 ba bw1 b--mid-gray pa2 mb3"
+        id="publisher-api-key"
+        v-model="api_key"
+      />
+      <a class="link dim br2 ph4 pv3 f4 bg-blue white mr2" href="#" @click="uploadToServer"
+        >Upload to Server</a
+      >
+
+      <ul class="pl1" v-if="upload_error">
+        <li class="b dark-red" style="list-style: none">
+          <span class="mr1 red f3">✖</span>
+          {{ upload_error }}
+        </li>
+      </ul>
+      <ul class="pl1" v-if="upload_success">
+        <li
+          v-for="(checklistItem, index) in upload_success"
+          class="gray"
+          style="list-style: none"
+          :key="index"
+        >
+          <span class="mr1 green f3">✔</span>
+          {{ checklistItem }}
+        </li>
+      </ul>
     </div>
     <details class="f6 mt4">
       <summary class="pointer">Debug info</summary>

@@ -3,12 +3,14 @@ import { defineComponent } from 'vue'
 
 import DatasetPropertyListItem from './DatasetPropertyListItem.vue'
 import SelectWithOther from './SelectWithOther.vue'
+import PlaceAutocomplete from './PlaceAutocomplete.vue'
 
 export default defineComponent({
   name: 'DatasetProperties',
   components: {
     DatasetPropertyListItem,
-    SelectWithOther
+    SelectWithOther,
+    PlaceAutocomplete
   },
   props: [
     'dateColumn',
@@ -57,12 +59,9 @@ export default defineComponent({
       </SelectWithOther>
     </DatasetPropertyListItem>
     <DatasetPropertyListItem name="Place" :column="placeColumn">
-      <input
-        type="text"
-        class=""
-        autocomplete="off"
-        :defaultValue="defaultPlace"
-        @input="$emit('update:defaultPlace', ($event.target as HTMLInputElement)?.value)"
+      <PlaceAutocomplete
+        :modelValue="defaultPlace"
+        @update:modelValue="(value) => $emit('update:defaultPlace', value)"
       />
     </DatasetPropertyListItem>
   </ul>
