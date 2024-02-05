@@ -9,7 +9,7 @@ import DatasetChecklist from './DatasetChecklist.vue'
 import type { Column, ChecklistItem } from '../types/types'
 import { ColumnType } from '../types/types'
 import DropZone from './DropZone.vue'
-import type { Components } from '../types/localneedsapi'
+import type { Components, Paths } from '../types/localneedsapi'
 import api from './client'
 import type { AxiosResponse } from 'axios'
 
@@ -28,25 +28,6 @@ interface BaseComponentData {
   defaultPeriod?: string
   defaultPlace?: Components.Schemas.Area
   papaparseConfig: ParseConfig
-}
-
-interface DatasetResponse {
-  success?: boolean
-  dataset?: {
-    publisher?: {
-      slug: string
-      name: string
-      description?: string
-      identifier?: string
-    }
-    slug: string
-    name: string
-    description?: string
-    file?: string
-    url?: string
-  }
-  errors?: string[]
-  detail?: string
 }
 
 const formatNumber = (value: number) => {
@@ -329,7 +310,7 @@ export default defineComponent({
               {
                 dataset_slug: data.slug
               },
-              formData, // @ts-ignore
+              formData as unknown as Paths.LocalneedsApiDatasetDatasetPostCsv.RequestBody, // @ts-ignore
               {
                 headers: {
                   'Content-Type': 'multipart/form-data',
