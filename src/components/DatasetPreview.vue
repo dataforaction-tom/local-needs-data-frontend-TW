@@ -23,15 +23,15 @@ export default defineComponent({
 <template>
   <h2>Data Preview</h2>
   <div class="w-100 overflow-x-auto" style="max-width: 90vw;">
-    <table class="table collapse">
+    <table class="table collapse near-black">
       <thead>
         <tr>
-          <th class="pa2 ba b--gray tl v-top">Column name</th>
+          <th class="pa2 ba b--gray tl v-top bg-purple white-90">Column name</th>
           <th
             v-for="(column, index) in columns"
             :key="index"
-            class="pa2 ba b--gray tl v-top"
-            :class="{ 'property-bg': isProperty(column), 'value-bg': isValue(column) }"
+            class="pa2 ba b--gray tl v-top bg-purple white-90"
+            :class="{ 'property-text-heading': isProperty(column), 'value-text-heading': isValue(column) }"
           >
             {{ column.name }}
           </th>
@@ -41,7 +41,7 @@ export default defineComponent({
           <th
             v-for="(column, index) in columns"
             :key="index"
-            class="pa2 ba b--gray tl v-top"
+            class="pa2 ba b--gray tl v-top near-black"
             :class="{ 'property-bg': isProperty(column), 'value-bg': isValue(column) }"
           >
             <select
@@ -64,11 +64,11 @@ export default defineComponent({
           <th
             v-for="(column, index) in columns"
             :key="index"
-            class="pa2 ba b--gray tl v-top"
+            class="pa2 ba b--gray tl v-top near-black"
             :class="{ 'property-bg': isProperty(column), 'value-bg': isValue(column) }"
           >
             <textarea
-              class="bn br3 pa2 f6"
+              class="bn br3 pa2 w-100 pr1 f6 bg-light-gray "
               :value="column.description"
               @input="column.description = ($event.target as HTMLInputElement).value"
             ></textarea>
@@ -83,10 +83,10 @@ export default defineComponent({
           <td
             v-for="(column, index) in columns"
             :key="index"
-            class="pa2 ba b--gray v-top"
-            :class="{ 'property-bg': isProperty(column), 'value-bg tr': isValue(column), 'tl': !isValue(column) }"
+            class="pa2 ba b--gray v-top white-90"
+            :class="{ 'property-text': isProperty(column), 'value-text tr': isValue(column), 'tl': !isValue(column) }"
           >
-            <span v-if="row[column.name] == ''" class="gray">-- empty --</span>
+            <span v-if="row[column.name] == ''" class="white-90">-- empty --</span>
             <span v-else>{{ row[column.name] }}</span>
           </td>
         </tr>
