@@ -39,6 +39,32 @@ declare namespace Components {
             name?: string;
         }
         /**
+         * ChartData
+         */
+        export interface ChartData {
+            /**
+             * Labels
+             */
+            labels: string[];
+            /**
+             * Datasets
+             */
+            datasets: /* ChartDataset */ ChartDataset[];
+        }
+        /**
+         * ChartDataset
+         */
+        export interface ChartDataset {
+            /**
+             * Label
+             */
+            label: string;
+            /**
+             * Data
+             */
+            data: (number | number | null)[];
+        }
+        /**
          * Column
          */
         export interface Column {
@@ -96,6 +122,53 @@ declare namespace Components {
              */
             virtual?: boolean;
         }
+        /**
+         * DashboardFilter
+         */
+        export interface DashboardFilter {
+            /**
+             * Columns
+             */
+            columns?: string[];
+            /**
+             * Areas
+             */
+            areas?: string[];
+            /**
+             * Times
+             */
+            times?: string[];
+            /**
+             * DashboardType
+             */
+            dashboard_type?: "measure_over_time" | "area_over_time" | "measure_over_area";
+        }
+        /**
+         * DashboardResult
+         */
+        export interface DashboardResult {
+            /**
+             * Possible Columns
+             */
+            possible_columns?: /* PotentialColumn */ PotentialColumn[];
+            /**
+             * Possible Areas
+             */
+            possible_areas?: /* PotentialFilter */ PotentialFilter[];
+            /**
+             * Possible Times
+             */
+            possible_times?: /* PotentialFilter */ PotentialFilter[];
+            /**
+             * Dashboard Types
+             */
+            dashboard_types?: /* DashboardType */ DashboardType[];
+            data?: /* ChartData */ ChartData | null;
+        }
+        /**
+         * DashboardType
+         */
+        export type DashboardType = "measure_over_time" | "area_over_time" | "measure_over_area";
         /**
          * Dataset
          */
@@ -510,6 +583,40 @@ declare namespace Components {
             additionalType?: string;
         }
         /**
+         * PotentialColumn
+         */
+        export interface PotentialColumn {
+            /**
+             * Id
+             */
+            id: number;
+            /**
+             * Name
+             */
+            name: string;
+            /**
+             * Dataset Id
+             */
+            dataset_id: number;
+            /**
+             * Dataset Name
+             */
+            dataset_name: string;
+        }
+        /**
+         * PotentialFilter
+         */
+        export interface PotentialFilter {
+            /**
+             * Id
+             */
+            id: string;
+            /**
+             * Name
+             */
+            name: string;
+        }
+        /**
          * PropertyUrl
          */
         export type PropertyUrl = "rdf:type" | "schema:observationDate" | "schema:observationPeriod" | "schema:observationAbout";
@@ -675,6 +782,35 @@ declare namespace Paths {
         }
         namespace Responses {
             export type $200 = /* Area */ Components.Schemas.Area;
+        }
+    }
+    namespace LocalneedsApiDashboardDashboardPrepare {
+        namespace Parameters {
+            /**
+             * Areas
+             */
+            export type Areas = string[];
+            /**
+             * Columns
+             */
+            export type Columns = string[];
+            /**
+             * DashboardType
+             */
+            export type DashboardType = "measure_over_time" | "area_over_time" | "measure_over_area";
+            /**
+             * Times
+             */
+            export type Times = string[];
+        }
+        export interface QueryParameters {
+            columns?: /* Columns */ Parameters.Columns;
+            areas?: /* Areas */ Parameters.Areas;
+            times?: /* Times */ Parameters.Times;
+            dashboard_type?: /* DashboardType */ Parameters.DashboardType;
+        }
+        namespace Responses {
+            export type $200 = /* DashboardResult */ Components.Schemas.DashboardResult;
         }
     }
     namespace LocalneedsApiDatasetDatasetCreate {
@@ -1067,6 +1203,14 @@ export interface OperationMethods {
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.LocalneedsApiObservationObservationGet.Responses.$200>
   /**
+   * localneeds_api_dashboard_dashboard_prepare - Prepare a dashboard
+   */
+  'localneeds_api_dashboard_dashboard_prepare'(
+    parameters?: Parameters<Paths.LocalneedsApiDashboardDashboardPrepare.QueryParameters> | null,
+    data?: any,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.LocalneedsApiDashboardDashboardPrepare.Responses.$200>
+  /**
    * localneeds_api_area_area_filter_list - Filter a list of areas
    */
   'localneeds_api_area_area_filter_list'(
@@ -1200,6 +1344,16 @@ export interface PathsDictionary {
       data?: any,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.LocalneedsApiObservationObservationGet.Responses.$200>
+  }
+  ['/api/v1/dashboard/prepare']: {
+    /**
+     * localneeds_api_dashboard_dashboard_prepare - Prepare a dashboard
+     */
+    'get'(
+      parameters?: Parameters<Paths.LocalneedsApiDashboardDashboardPrepare.QueryParameters> | null,
+      data?: any,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.LocalneedsApiDashboardDashboardPrepare.Responses.$200>
   }
   ['/api/v1/area/']: {
     /**

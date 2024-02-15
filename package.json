@@ -11,7 +11,7 @@
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
-    "update-api": "npx openapicmd read --strip openapi_client_axios --format json https://local-needs.kanedata.co.uk/api/v1/openapi.json > src/localneedsapi/openapi-runtime.json && npx openapicmd typegen https://local-needs.kanedata.co.uk/api/v1/openapi.json > src/types/localneedsapi.d.ts"
+    "update-api": "npx openapicmd read --strip openapi_client_axios --format json https://local-needs.kanedata.co.uk/api/v1/openapi.json > src/components/localneedsapi/openapi-runtime.json && npx openapicmd typegen https://local-needs.kanedata.co.uk/api/v1/openapi.json > src/types/localneedsapi.d.ts"
   },
   "dependencies": {
     "openapicmd": "^2.3.1",
