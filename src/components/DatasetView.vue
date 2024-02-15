@@ -338,74 +338,68 @@ export default defineComponent({
 <template>
   <header>
     <section class="mw5 mw9-ns center bg-light-gray pa3 ph5-ns">
-  <h1 class="mt0 tc">Create metadata for dataset</h1>
-  <p class=" tc">
-    Use this tool to add metadata to your data upload.
-  </p>
+      <h1 class="mt0 tc">Create metadata for dataset</h1>
+      <p class="tc">Use this tool to add metadata to your data upload.</p>
 
-    
-    <DropZone 
-      @files-dropped="handleFilesDropped"
-      class="drop-zone"
-    >
-      <div v-if="file" class="">
-        <p class="mt0">
-          Selected file: <strong>{{ file.name }}</strong>
-        </p>
-        <table class="table collapse w-100 ">
-          <thead>
-            <tr>
-              <th class="tc w-third normal" v-if="csv?.data">Rows</th>
-              <th class="tc w-third normal" v-if="columns">Columns</th>
-              <th class="tc w-third normal" v-if="observationOutput">Observations</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="tc w-third b f2" v-if="csv?.data">{{ csv?.data.length }}</td>
-              <td class="tc w-third b f2" v-if="columns">{{ columns.length }}</td>
-              <td class="tc w-third b f2" v-if="observationOutput">
-                {{ formatNumber(observationOutput.length) }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p class="mb0">Click or drag a new CSV file to change the file</p>
+      <DropZone @files-dropped="handleFilesDropped" class="drop-zone">
+        <div v-if="file" class="">
+          <p class="mt0">
+            Selected file: <strong>{{ file.name }}</strong>
+          </p>
+          <table class="table collapse w-100">
+            <thead>
+              <tr>
+                <th class="tc w-third normal" v-if="csv?.data">Rows</th>
+                <th class="tc w-third normal" v-if="columns">Columns</th>
+                <th class="tc w-third normal" v-if="observationOutput">Observations</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tc w-third b f2" v-if="csv?.data">{{ csv?.data.length }}</td>
+                <td class="tc w-third b f2" v-if="columns">{{ columns.length }}</td>
+                <td class="tc w-third b f2" v-if="observationOutput">
+                  {{ formatNumber(observationOutput.length) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="mb0">Click or drag a new CSV file to change the file</p>
+        </div>
+        <div v-else class="">
+          Click or drag a CSV file here to get started. Your file won't leave your computer.
+        </div>
+      </DropZone>
+      <div v-if="file">
+        <label class="db mb3 w-100">
+          <strong>Dataset name</strong><br />
+          <input
+            class="w-100 br2 ba bw1 b--mid-gray pa2"
+            type="text"
+            v-model="name"
+            placeholder="Name"
+          />
+        </label>
+        <label class="db mb3 w-100">
+          <strong>Dataset description</strong><br />
+          <textarea
+            class="w-100 br2 ba bw1 b--mid-gray pa2"
+            v-model="description"
+            placeholder="Description"
+            rows="6"
+          ></textarea>
+        </label>
+        <label class="db mb3 w-100">
+          <strong>Publisher of the dataset</strong><br />
+          <input
+            class="w-100 br2 ba bw1 b--mid-gray pa2"
+            type="text"
+            v-model="creator"
+            placeholder="Organisation"
+          />
+        </label>
       </div>
-      <div v-else class="">
-        Click or drag a CSV file here to get started. Your file won't leave your computer.
-      </div>
-    </DropZone>
-    <div v-if="file">
-      <label class="db mb3 w-100">
-        <strong>Dataset name</strong><br />
-        <input
-          class="w-100 br2 ba bw1 b--mid-gray pa2"
-          type="text"
-          v-model="name"
-          placeholder="Name"
-        />
-      </label>
-      <label class="db mb3 w-100">
-        <strong>Dataset description</strong><br />
-        <textarea
-          class="w-100 br2 ba bw1 b--mid-gray pa2"
-          v-model="description"
-          placeholder="Description"
-          rows="6"
-        ></textarea>
-      </label>
-      <label class="db mb3 w-100">
-        <strong>Publisher of the dataset</strong><br />
-        <input
-          class="w-100 br2 ba bw1 b--mid-gray pa2"
-          type="text"
-          v-model="creator"
-          placeholder="Organisation"
-        />
-      </label>
-    </div>
-  </section>
+    </section>
   </header>
   <section v-if="file">
     <h2>Results</h2>
@@ -422,6 +416,35 @@ export default defineComponent({
         :download="file.name + '-metadata.json'"
         >Download CSV metadata</a
       >
+      <h3>Upload to server</h3>
+      <label for="publisher-api-key">Publisher API Key</label>
+      <input
+        type="text"
+        class="w-100 br2 ba bw1 b--mid-gray pa2 mb3"
+        id="publisher-api-key"
+        v-model="api_key"
+      />
+      <a class="link dim br2 ph4 pv3 f4 bg-blue white mr2" href="#" @click="uploadToServer"
+        >Upload to Server</a
+      >
+
+      <ul class="pl1" v-if="upload_error">
+        <li class="b dark-red" style="list-style: none">
+          <span class="mr1 red f3">✖</span>
+          {{ upload_error }}
+        </li>
+      </ul>
+      <ul class="pl1" v-if="upload_success">
+        <li
+          v-for="(checklistItem, index) in upload_success"
+          class="gray"
+          style="list-style: none"
+          :key="index"
+        >
+          <span class="mr1 green f3">✔</span>
+          {{ checklistItem }}
+        </li>
+      </ul>
     </div>
     <details class="f6 mt4">
       <summary class="pointer">Debug info</summary>
