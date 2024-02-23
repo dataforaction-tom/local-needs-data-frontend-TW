@@ -1,9 +1,11 @@
 import DatasetView from './pages/DatasetView.vue'
 import DocumentationView from './pages/DocumentationView.vue'
+import DashboardView from './pages/DashboardView.vue'
 import * as VueRouter from 'vue-router'
 
 const routes = [
     { path: '/', component: DatasetView },
+    { path: '/dashboard', component: DashboardView },
     { path: '/documentation', component: DocumentationView },
 ]
 

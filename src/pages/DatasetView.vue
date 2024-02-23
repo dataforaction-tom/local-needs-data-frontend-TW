@@ -11,8 +11,8 @@ import { ColumnType } from '../types/types'
 import DropZone from '../components/DropZone.vue'
 import type { Components, Paths } from '../types/localneedsapi'
 import api from '../components/client'
-import type { AxiosResponse } from 'axios'
 import DatasetHelp from '../components/DatasetHelp.vue'
+import type { AxiosResponse } from 'axios'
 
 interface BaseComponentData {
   file?: File
@@ -30,11 +30,7 @@ interface BaseComponentData {
   papaparseConfig: ParseConfig
 }
 
-const formatNumber = (value: number) => {
-  return value.toLocaleString('en-GB', { maximumFractionDigits: 2 })
-}
-
-const processResponse = (response: AxiosResponse<Components.Schemas.DatasetResult, any>) => {
+export const processResponse = (response: AxiosResponse<Components.Schemas.DatasetResult, any>) => {
   console.log(response)
   if (!response) {
     throw new Error('No response')
@@ -50,6 +46,10 @@ const processResponse = (response: AxiosResponse<Components.Schemas.DatasetResul
     }
   }
   return data.dataset
+}
+
+const formatNumber = (value: number) => {
+  return value.toLocaleString('en-GB', { maximumFractionDigits: 2 })
 }
 
 export default defineComponent({
@@ -479,3 +479,4 @@ export default defineComponent({
     <DatasetValues :valueColumns="valueColumns" />
   </section>
 </template>
+../components/processResponse
