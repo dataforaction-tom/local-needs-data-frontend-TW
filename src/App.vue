@@ -6,8 +6,8 @@ import PageFooter from './components/PageFooter.vue'
 <template>
   <PageHeader></PageHeader>
   <img src="./assets/img/npc-logo.png" width="120" height="120" />
-  <div class="main-container">
-    <router-view class="ph3 ph5-l bg-white lh-copy f4"></router-view>
+  <div class="main-container ph3 ph5-l bg-white lh-copy f4">
+    <router-view></router-view>
   </div>
   <PageFooter></PageFooter>
 </template>

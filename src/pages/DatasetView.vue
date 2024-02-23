@@ -171,6 +171,7 @@ export default defineComponent({
         url: this.file?.name,
         'schema:name': this.name,
         'schema:description': this.description,
+        'schema:creator': 'Dummy Publisher (Overwritten by API)',
         tableSchema: {
           columns: columns
         }
@@ -278,7 +279,8 @@ export default defineComponent({
       })
     },
     formatNumber,
-    uploadToServer() {
+    uploadToServer(event: Event) {
+      event.preventDefault()
       this.upload_error = ''
       this.upload_success = []
       if (!this.api_key) {
@@ -393,16 +395,6 @@ export default defineComponent({
     <h3>Checklist</h3>
     <DatasetChecklist :checklist="checklist" />
     <div v-if="datasetValid">
-      <h3>Download results</h3>
-      <a
-        class="link dim br2 ph4 pv3 f4 bg-purple white"
-        :href="
-          'data:text/json;charset=utf-8,' +
-          encodeURIComponent(JSON.stringify(schemaOutput, null, 2))
-        "
-        :download="file.name + '-metadata.json'"
-        >Download CSV metadata</a
-      >
       <h3>Upload to server</h3>
       <label for="publisher-api-key">Publisher API Key</label>
       <input
@@ -413,6 +405,17 @@ export default defineComponent({
       />
       <a class="link dim br2 ph4 pv3 f4 bg-purple white mr2" href="#" @click="uploadToServer"
         >Upload to Server</a
+      >
+
+      <h3>Download results</h3>
+      <a
+        class="link dim br2 ph4 pv3 f4 bg-purple white"
+        :href="
+          'data:text/json;charset=utf-8,' +
+          encodeURIComponent(JSON.stringify(schemaOutput, null, 2))
+        "
+        :download="file.name + '-metadata.json'"
+        >Download CSV metadata</a
       >
 
       <ul class="pl1" v-if="upload_error">
