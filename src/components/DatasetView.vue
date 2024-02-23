@@ -21,7 +21,6 @@ interface BaseComponentData {
   api_key?: string
   upload_error?: string
   upload_success: string[]
-  creator: string
   sample_data?: Record<string, string>[]
   columns: Column[]
   defaultDate?: string
@@ -72,7 +71,6 @@ export default defineComponent({
       api_key: '',
       upload_error: '',
       upload_success: [],
-      creator: '',
       columns: [],
       defaultDate: undefined,
       defaultPeriod: 'P1D',
@@ -171,7 +169,6 @@ export default defineComponent({
         url: this.file?.name,
         'schema:name': this.name,
         'schema:description': this.description,
-        'schema:creator': this.creator,
         tableSchema: {
           columns: columns
         }
@@ -223,10 +220,6 @@ export default defineComponent({
         {
           name: 'Dataset name and description',
           valid: !!this.name && !!this.description
-        },
-        {
-          name: 'Dataset creator identified',
-          valid: !!this.creator
         },
         {
           name: 'One or more values columns',
@@ -388,15 +381,6 @@ export default defineComponent({
             placeholder="Description"
             rows="6"
           ></textarea>
-        </label>
-        <label class="db mb3 w-100">
-          <strong>Publisher of the dataset</strong><br />
-          <input
-            class="w-100 br2 ba bw1 b--mid-gray pa2"
-            type="text"
-            v-model="creator"
-            placeholder="Organisation"
-          />
         </label>
       </div>
     </section>
