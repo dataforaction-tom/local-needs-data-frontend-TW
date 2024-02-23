@@ -2,16 +2,17 @@
 import Papa from 'papaparse'
 import type { ParseConfig, ParseResult } from 'papaparse'
 import { defineComponent } from 'vue'
-import DatasetValues from './DatasetValues.vue'
-import DatasetProperties from './DatasetProperties.vue'
-import DatasetPreview from './DatasetPreview.vue'
-import DatasetChecklist from './DatasetChecklist.vue'
+import DatasetValues from '../components/DatasetValues.vue'
+import DatasetProperties from '../components/DatasetProperties.vue'
+import DatasetPreview from '../components/DatasetPreview.vue'
+import DatasetChecklist from '../components/DatasetChecklist.vue'
 import type { Column, ChecklistItem } from '../types/types'
 import { ColumnType } from '../types/types'
-import DropZone from './DropZone.vue'
+import DropZone from '../components/DropZone.vue'
 import type { Components, Paths } from '../types/localneedsapi'
-import api from './client'
+import api from '../components/client'
 import type { AxiosResponse } from 'axios'
+import DatasetHelp from '../components/DatasetHelp.vue'
 
 interface BaseComponentData {
   file?: File
@@ -58,7 +59,8 @@ export default defineComponent({
     DatasetValues,
     DatasetProperties,
     DropZone,
-    DatasetChecklist
+    DatasetChecklist,
+    DatasetHelp
   },
   props: [],
   data() {
@@ -329,6 +331,7 @@ export default defineComponent({
 </script>
 
 <template>
+  <DatasetHelp></DatasetHelp>
   <header>
     <section class="mw5 mw9-ns center bg-light-gray pa3 ph5-ns">
       <h1 class="mt0 tc">Create metadata for dataset</h1>
