@@ -392,7 +392,7 @@ export default defineComponent({
     <div v-if="datasetValid">
       <h3>Download results</h3>
       <a
-        class="link dim br2 ph4 pv3 f4 bg-blue white"
+        class="link dim br2 ph4 pv3 f4 bg-purple white"
         :href="
           'data:text/json;charset=utf-8,' +
           encodeURIComponent(JSON.stringify(schemaOutput, null, 2))
@@ -408,7 +408,7 @@ export default defineComponent({
         id="publisher-api-key"
         v-model="api_key"
       />
-      <a class="link dim br2 ph4 pv3 f4 bg-blue white mr2" href="#" @click="uploadToServer"
+      <a class="link dim br2 ph4 pv3 f4 bg-purple white mr2" href="#" @click="uploadToServer"
         >Upload to Server</a
       >
 
