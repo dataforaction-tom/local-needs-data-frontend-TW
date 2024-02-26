@@ -7,12 +7,25 @@ export enum ColumnType {
 }
 
 export interface Column {
-  name: string
-  type?: ColumnType
-  description?: string
+  name: string;
+  type?: ColumnType;
+  description?: string;
 }
 
 export interface ChecklistItem {
-  name: string
-  valid: boolean
+  name: string;
+  valid: boolean;
+}
+
+// New interfaces based on the discussion
+export interface ExtendedColumn extends Column {
+  id: number;
+  dataset_id: number;
+  dataset_name: string;
+}
+
+export interface Dataset {
+  dataset: string;
+  columns: ExtendedColumn[];
+  id?: number; // Assuming you might also need an 'id' at this level, given the error message
 }
