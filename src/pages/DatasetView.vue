@@ -2,15 +2,16 @@
 import Papa from 'papaparse'
 import type { ParseConfig, ParseResult } from 'papaparse'
 import { defineComponent } from 'vue'
-import DatasetValues from './DatasetValues.vue'
-import DatasetProperties from './DatasetProperties.vue'
-import DatasetPreview from './DatasetPreview.vue'
-import DatasetChecklist from './DatasetChecklist.vue'
+import DatasetValues from '../components/DatasetValues.vue'
+import DatasetProperties from '../components/DatasetProperties.vue'
+import DatasetPreview from '../components/DatasetPreview.vue'
+import DatasetChecklist from '../components/DatasetChecklist.vue'
 import type { Column, ChecklistItem } from '../types/types'
 import { ColumnType } from '../types/types'
-import DropZone from './DropZone.vue'
+import DropZone from '../components/DropZone.vue'
 import type { Components, Paths } from '../types/localneedsapi'
-import api from './client'
+import api from '../components/client'
+import DatasetHelp from '../components/DatasetHelp.vue'
 import type { AxiosResponse } from 'axios'
 
 interface BaseComponentData {
@@ -21,7 +22,6 @@ interface BaseComponentData {
   api_key?: string
   upload_error?: string
   upload_success: string[]
-  creator: string
   sample_data?: Record<string, string>[]
   columns: Column[]
   defaultDate?: string
@@ -30,11 +30,7 @@ interface BaseComponentData {
   papaparseConfig: ParseConfig
 }
 
-const formatNumber = (value: number) => {
-  return value.toLocaleString('en-GB', { maximumFractionDigits: 2 })
-}
-
-const processResponse = (response: AxiosResponse<Components.Schemas.DatasetResult, any>) => {
+export const processResponse = (response: AxiosResponse<Components.Schemas.DatasetResult, any>) => {
   console.log(response)
   if (!response) {
     throw new Error('No response')
@@ -52,6 +48,10 @@ const processResponse = (response: AxiosResponse<Components.Schemas.DatasetResul
   return data.dataset
 }
 
+const formatNumber = (value: number) => {
+  return value.toLocaleString('en-GB', { maximumFractionDigits: 2 })
+}
+
 export default defineComponent({
   name: 'DatasetView',
   components: {
@@ -59,7 +59,8 @@ export default defineComponent({
     DatasetValues,
     DatasetProperties,
     DropZone,
-    DatasetChecklist
+    DatasetChecklist,
+    DatasetHelp
   },
   props: [],
   data() {
@@ -72,7 +73,6 @@ export default defineComponent({
       api_key: '',
       upload_error: '',
       upload_success: [],
-      creator: '',
       columns: [],
       defaultDate: undefined,
       defaultPeriod: 'P1D',
@@ -171,7 +171,7 @@ export default defineComponent({
         url: this.file?.name,
         'schema:name': this.name,
         'schema:description': this.description,
-        'schema:creator': this.creator,
+        'schema:creator': 'Dummy Publisher (Overwritten by API)',
         tableSchema: {
           columns: columns
         }
@@ -223,10 +223,6 @@ export default defineComponent({
         {
           name: 'Dataset name and description',
           valid: !!this.name && !!this.description
-        },
-        {
-          name: 'Dataset creator identified',
-          valid: !!this.creator
         },
         {
           name: 'One or more values columns',
@@ -283,7 +279,8 @@ export default defineComponent({
       })
     },
     formatNumber,
-    uploadToServer() {
+    uploadToServer(event: Event) {
+      event.preventDefault()
       this.upload_error = ''
       this.upload_success = []
       if (!this.api_key) {
@@ -336,6 +333,7 @@ export default defineComponent({
 </script>
 
 <template>
+  <DatasetHelp></DatasetHelp>
   <header>
     <section class="mw5 mw9-ns center bg-light-gray pa3 ph5-ns">
       <h1 class="mt0 tc">Create metadata for dataset</h1>
@@ -389,15 +387,6 @@ export default defineComponent({
             rows="6"
           ></textarea>
         </label>
-        <label class="db mb3 w-100">
-          <strong>Publisher of the dataset</strong><br />
-          <input
-            class="w-100 br2 ba bw1 b--mid-gray pa2"
-            type="text"
-            v-model="creator"
-            placeholder="Organisation"
-          />
-        </label>
       </div>
     </section>
   </header>
@@ -406,16 +395,6 @@ export default defineComponent({
     <h3>Checklist</h3>
     <DatasetChecklist :checklist="checklist" />
     <div v-if="datasetValid">
-      <h3>Download results</h3>
-      <a
-        class="link dim br2 ph4 pv3 f4 bg-purple white"
-        :href="
-          'data:text/json;charset=utf-8,' +
-          encodeURIComponent(JSON.stringify(schemaOutput, null, 2))
-        "
-        :download="file.name + '-metadata.json'"
-        >Download CSV metadata</a
-      >
       <h3>Upload to server</h3>
       <label for="publisher-api-key">Publisher API Key</label>
       <input
@@ -426,6 +405,17 @@ export default defineComponent({
       />
       <a class="link dim br2 ph4 pv3 f4 bg-purple white mr2" href="#" @click="uploadToServer"
         >Upload to Server</a
+      >
+
+      <h3>Download results</h3>
+      <a
+        class="link dim br2 ph4 pv3 f4 bg-purple white"
+        :href="
+          'data:text/json;charset=utf-8,' +
+          encodeURIComponent(JSON.stringify(schemaOutput, null, 2))
+        "
+        :download="file.name + '-metadata.json'"
+        >Download CSV metadata</a
       >
 
       <ul class="pl1" v-if="upload_error">
@@ -489,3 +479,4 @@ export default defineComponent({
     <DatasetValues :valueColumns="valueColumns" />
   </section>
 </template>
+../components/processResponse

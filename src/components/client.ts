@@ -4,7 +4,12 @@ import type { Client as LocalNeedsAPIClient, Components } from '../types/localne
 
 export const client = new OpenAPIClientAxios({
     definition: definition,
-    withServer: { url: "https://local-needs.kanedata.co.uk/" }
+    withServer: { url: "https://local-needs.kanedata.co.uk/" },
+    axiosConfigDefaults: {
+        paramsSerializer: {
+            indexes: null
+        },
+    },
 });
 const api = client.getClient<LocalNeedsAPIClient>();
 
