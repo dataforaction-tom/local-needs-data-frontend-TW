@@ -17,7 +17,7 @@ export interface ChecklistItem {
   valid: boolean;
 }
 
-// New interfaces based on the discussion
+
 export interface ExtendedColumn extends Column {
   id: number;
   dataset_id: number;
@@ -27,5 +27,5 @@ export interface ExtendedColumn extends Column {
 export interface Dataset {
   dataset: string;
   columns: ExtendedColumn[];
-  id?: number; // Assuming you might also need an 'id' at this level, given the error message
+  id?: number; 
 }
